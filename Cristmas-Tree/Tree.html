@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Christmas Interactive Experience 2025</title>
+    <style>
+        :root {
+            --gold: #ffd700;
+            --bauble-red: #ff0000;
+            --bauble-blue: #0088ff;
+            --panel-bg: rgba(255, 255, 255, 0.05);
+            --accent: #ff3131;
+        }
+
+        body {
+            margin: 0;
+            background: #02040a;
+            background: radial-gradient(circle at center, #0a111a 0%, #000 100%);
+            height: 100vh;
+            color: white;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1500px;
+        }
+
+        /* --- Website UI Layers --- */
+        .ui-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+
+        header h1 {
+            margin: 0; font-weight: 200; letter-spacing: 12px;
+            text-transform: uppercase; opacity: 0.9;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        .controls-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(20px);
+            padding: 25px;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            pointer-events: auto;
+            width: 280px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        }
+
+        .control-group { margin-bottom: 20px; }
+        label { display: block; font-size: 11px; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 1px; opacity: 0.6; }
+        
+        button {
+            background: white; border: none; padding: 10px;
+            border-radius: 8px; cursor: pointer; font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%; margin-top: 6px;
+            font-size: 12px;
+        }
+        button:hover { background: var(--accent); color: white; transform: translateY(-2px); }
+        button:active { transform: scale(0.98); }
+
+        input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+        /* --- 3D Scene Composition --- */
+        .scene {
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .floor {
+            position: absolute;
+            width: 1500px; height: 1500px;
+            background: radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%);
+            transform: rotateX(90deg) translateZ(300px) translateX(-750px);
+            filter: blur(30px);
+            pointer-events: none;
+        }
+
+        .tree-pivot {
+            position: relative;
+            transform-style: preserve-3d;
+            animation: rotateTree 25s linear infinite;
+        }
+
+        /* --- Tree Elements --- */
+        .star {
+            position: absolute;
+            top: -240px; left: -25px;
+            font-size: 50px; color: #fff;
+            text-shadow: 0 0 20px #fff, 0 0 50px gold, 0 0 100px orange;
+            animation: starPulse 3s infinite ease-in-out;
+            z-index: 10;
+        }
+
+        .light {
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 12px currentColor;
+            animation: twinkle var(--dur) infinite ease-in-out;
+            pointer-events: none;
+        }
+
+        .bauble {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #fff, currentColor 80%);
+            box-shadow: inset -2px -2px 6px rgba(0,0,0,0.5), 0 5px 15px rgba(0,0,0,0.4);
+            transition: transform 0.3s;
+        }
+
+        /* --- Gifts & Interactive Elements --- */
+        .gifts-layer {
+            position: absolute;
+            transform-style: preserve-3d;
+            transform: translateY(270px);
+        }
+
+        .gift {
+            position: absolute;
+            width: 45px; height: 45px;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+        .gift:hover { transform: scale(1.2) rotateY(45deg) !important; filter: brightness(1.2); }
+
+        .santa-orbit {
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: orbitSanta 15s linear infinite;
+        }
+        .santa { position: absolute; font-size: 40px; transform: translate3d(500px, -120px, 0) rotateY(-90deg); filter: drop-shadow(0 0 15px gold); }
+
+        /* --- Environment --- */
+        .snow {
+            position: absolute; background: #fff; border-radius: 50%; pointer-events: none; opacity: 0.6;
+        }
+
+        /* --- Animations --- */
+        @keyframes rotateTree { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
+        @keyframes orbitSanta { from { transform: rotateY(0deg); } to { transform: rotateY(-360deg); } }
+        @keyframes starPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.2); filter: brightness(1.4); } }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.2); } }
+    </style>
+</head>
+<body>
+
+    <div class="ui-overlay">
+        <header>
+            <h1>Merry Christmas</h1>
+            <p id="date-info" style="opacity: 0.5; letter-spacing: 2px;">EST. 2025 • INTERACTIVE EXPERIENCE</p>
+        </header>
+
+        <div class="controls-panel">
+            <div class="control-group">
+                <label>Spin Velocity</label>
+                <input type="range" id="speedRange" min="5" max="55" value="25">
+            </div>
+            <div class="control-group">
+                <label>Atmosphere Theme</label>
+                <button onclick="changeTheme('classic')">Festive Classic</button>
+                <button onclick="changeTheme('gold')">Luxury Gold</button>
+                <button onclick="changeTheme('ice')">Winter Ice</button>
+            </div>
+            <div class="control-group">
+                <label>Environment</label>
+                <button id="snowBtn" onclick="toggleSnow()">Disable Snowfall</button>
+            </div>
+            <p style="font-size: 9px; opacity: 0.4; text-align: center;">CLICK GIFTS TO OPEN</p>
+        </div>
+    </div>
+
+    <div class="scene" id="mainScene">
+        <div class="floor"></div>
+        
+        <div class="santa-orbit">
+            <div class="santa">🎅🛷🦌</div>
+        </div>
+
+        <div class="tree-pivot" id="tree">
+            <div class="star">★</div>
+            <div class="gifts-layer" id="gifts"></div>
+        </div>
+    </div>
+
+    <script>
+        const tree = document.getElementById('tree');
+        const giftsContainer = document.getElementById('gifts');
+        const speedRange = document.getElementById('speedRange');
+        const mainScene = document.getElementById('mainScene');
+        
+        let snowActive = true;
+        const themes = {
+            classic: ['#ff3131', '#39ff14', '#00ffff', '#ffcc00', '#ffffff'],
+            gold: ['#ffcc00', '#ffffff', '#ffd700', '#aa8800'],
+            ice: ['#00ffff', '#ffffff', '#0099ff', '#0044ff']
+        };
+
+        function buildTree(colors) {
+            // Cleanup existing elements except the star
+            const items = tree.querySelectorAll('.light, .bauble');
+            items.forEach(i => i.remove());
+
+            // 1. Generate Realistic Fairy Lights (Phyllotaxis)
+            const lightCount = 750;
+            for (let i = 0; i < lightCount; i++) {
+                const light = document.createElement('div');
+                light.className = 'light';
+                const progress = i / lightCount;
+                const angle = i * 137.5;
+                const radius = progress * 200 + (Math.random() * 12);
+                const y = progress * 450 - 225;
+                const x = Math.cos(angle * Math.PI / 180) * radius;
+                const z = Math.sin(angle * Math.PI / 180) * radius;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                light.style.cssText = `
+                    width: 3px; height: 3px; background: ${color}; color: ${color};
+                    transform: translate3d(${x}px, ${y}px, ${z}px);
+                    --dur: ${1.2 + Math.random() * 2}s;
+                    animation-delay: ${Math.random() * 3}s;
+                `;
+                tree.appendChild(light);
+            }
+
+            // 2. Generate Specular Baubles
+            for (let i = 0; i < 60; i++) {
+                const bauble = document.createElement('div');
+                bauble.className = 'bauble';
+                const progress = Math.random();
+                const angle = Math.random() * 360;
+                const radius = (progress * 190);
+                const y = progress * 420 - 210;
+                const x = Math.cos(angle * Math.PI / 180) * radius;
+                const z = Math.sin(angle * Math.PI / 180) * radius;
+                
+                // Color logic based on theme
+                const color = colors[Math.floor(Math.random() * colors.length)];
+
+                bauble.style.cssText = `
+                    width: 12px; height: 12px; background: ${color}; color: ${color};
+                    transform: translate3d(${x}px, ${y}px, ${z}px);
+                `;
+                tree.appendChild(bauble);
+            }
+        }
+
+        function buildGifts() {
+            const giftColors = ['#b22222', '#228b22', '#1e90ff', '#ffd700'];
+            for (let i = 0; i < 6; i++) {
+                const gift = document.createElement('div');
+                gift.className = 'gift';
+                const angle = (i / 6) * 360;
+                const x = Math.cos(angle * Math.PI / 180) * 160;
+                const z = Math.sin(angle * Math.PI / 180) * 160;
+                
+                gift.style.background = giftColors[i % giftColors.length];
+                gift.style.transform = `translate3d(${x}px, 0, ${z}px)`;
+                gift.style.border = "2px solid rgba(255,255,255,0.2)";
+                
+                gift.onclick = (e) => {
+                    e.stopPropagation();
+                    gift.style.transform += ' translateY(-150px) rotateX(720deg) scale(0)';
+                    gift.style.opacity = '0';
+                    setTimeout(() => gift.remove(), 600);
+                };
+                giftsContainer.appendChild(gift);
+            }
+        }
+
+        // --- Interactive Functions ---
+        function changeTheme(themeName) {
+            buildTree(themes[themeName]);
+        }
+
+        function toggleSnow() {
+            snowActive = !snowActive;
+            document.getElementById('snowBtn').innerText = snowActive ? "Disable Snowfall" : "Enable Snowfall";
+        }
+
+        speedRange.oninput = (e) => {
+            tree.style.animationDuration = `${65 - e.target.value}s`;
+        };
+
+        // Mouse Parallax
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 45;
+            const y = (window.innerHeight / 2 - e.pageY) / 45;
+            mainScene.style.transform = `rotateX(${y}deg) rotateY(${-x}deg)`;
+        });
+
+        // Snow Particle Engine
+        function createSnow() {
+            if (!snowActive) return;
+            const s = document.createElement('div');
+            s.className = 'snow';
+            const size = Math.random() * 4 + 2 + 'px';
+            s.style.width = size; s.style.height = size;
+            s.style.left = Math.random() * 100 + 'vw';
+            s.style.top = '-10px';
+            document.body.appendChild(s);
+            
+            const anim = s.animate([
+                { transform: `translateY(0) translateX(0)` },
+                { transform: `translateY(105vh) translateX(${Math.random() * 100 - 50}px)` }
+            ], { duration: 5000 + Math.random() * 5000, easing: 'linear' });
+            
+            anim.onfinish = () => s.remove();
+        }
+
+        // --- Init ---
+        buildTree(themes.classic);
+        buildGifts();
+        setInterval(createSnow, 150);
+    </script>
+</body>
+</html>
